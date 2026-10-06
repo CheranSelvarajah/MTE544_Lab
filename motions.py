@@ -13,26 +13,26 @@ from nav_msgs.msg import Odometry
 
 from rclpy.time import Time
 
-# You may add any other imports you may need/want to use below
-# import ...
-
-# Define constants for the motion types
+# *** Defining Motion Constants ***
 
 # Case 1: Circle
 CIRCLE_ANGULAR_VELOCITY = 0.3
 CIRCLE_LINEAR_VELOCITY = 0.1
 
 # Case 2: Spiral
-SPIRAL_LINEAR_VELOCITY = 0.1
+SPIRAL_COUNT = 0
+INIT_SPIRAL_LIN_VELOCITY = 0.1
 SPIRAL_ANGULAR_VELOCITY = 0.1
 SPIRAL_LIN_INCREMENT = 0.01
-prev_spiral_linear_velocity = SPIRAL_LINEAR_VELOCITY
+TARGET_SPIRAL_COUNT = 100
+
 
 # Case 3: Accelerated Line
-LINE_LINEAR_VELOCITY = 0.1
+LINE_COUNT = 0
+INIT_LINE_LIN_VELOCITY = 0.1
 LINE_LIN_INCREMENT = 0.01
 LINE_ANGULAR_VELOCITY = 0
-prev_line_linear_velocity = LINE_LINEAR_VELOCITY
+TARGET_LINE_COUNT = 100
 
 CIRCLE=0; SPIRAL=1; ACC_LINE=2
 motion_types=['circle', 'spiral', 'line']
@@ -73,6 +73,9 @@ class motion_executioner(Node):
         self.create_timer(0.1, self.timer_callback)
 
     def imu_callback(self, imu_msg: Imu):
+        """
+        Gets the data from the `/imu` topic and sends it to the logger
+        """
         self.imu_initialized = True
         acc_x = imu_msg.linear_acceleration.x
         acc_y = imu_msg.linear_acceleration.y
@@ -81,6 +84,9 @@ class motion_executioner(Node):
         self.imu_logger.log_values([acc_x, acc_y, angular_z, stamp])
         
     def odom_callback(self, odom_msg: Odometry):
+        """
+        Gets the data from the `/odom` topic and sends it to the logger
+        """
         self.odom_initialized = True
         pos = odom_msg.pose.pose.position
         orientation = odom_msg.pose.pose.orientation
@@ -89,14 +95,16 @@ class motion_executioner(Node):
         self.odom_logger.log_values([pos.x, pos.y, yaw, stamp])
                 
     def laser_callback(self, laser_msg: LaserScan):
+        """
+        Gets the data from the `/odom` topic and sends it to the logger
+        """
         self.laser_initialized = True
-        ranges = laser_msg.ranges
+        ranges = f"[{laser_msg.ranges}]"
         angle_increment = laser_msg.angle_increment
         stamp = Time.from_msg(laser_msg.header.stamp).nanoseconds
         self.laser_logger.log_values([ranges, angle_increment, stamp])
                 
     def timer_callback(self):
-        
         if self.odom_initialized and self.laser_initialized and self.imu_initialized:
             self.successful_init=True
             
@@ -109,10 +117,12 @@ class motion_executioner(Node):
             cmd_vel_msg=self.make_circular_twist()
         
         elif self.type==SPIRAL:
-            cmd_vel_msg=self.make_spiral_twist()
+            SPIRAL_COUNT += 1
+            cmd_vel_msg=self.make_spiral_twist(SPIRAL_COUNT)
                         
         elif self.type==ACC_LINE:
-            cmd_vel_msg=self.make_acc_line_twist()
+            LINE_COUNT += 1
+            cmd_vel_msg=self.make_acc_line_twist(LINE_COUNT)
             
         else:
             print("type not set successfully, 0: CIRCLE 1: SPIRAL and 2: ACCELERATED LINE")
@@ -121,54 +131,56 @@ class motion_executioner(Node):
         self.vel_publisher.publish(cmd_vel_msg)
         
     def make_circular_twist(self):
+        """
+        In the case of the circle, the robot has a constant non zero linear and angular velocity.
+        The robot should be moving forward (setting linear.x) and also rotating around the z axes (setting angular.z)
+        """
         msg=Twist()
         msg.linear.x = CIRCLE_LINEAR_VELOCITY
         msg.angular.z = CIRCLE_ANGULAR_VELOCITY
         return msg
 
-    def make_spiral_twist(self):
+    def make_spiral_twist(self, count):
+        """
+        In the case of the spiral, the robot can have a constant angular velocity and increase the linear velocity
+        by `SPIRAL_LIN_INCREMENT`. This will decrease the radius of the circle in which the robot is travelling
+        """
         msg=Twist()
-        msg.linear.x = prev_spiral_linear_velocity + SPIRAL_LIN_INCREMENT
+        if count >= TARGET_SPIRAL_COUNT:
+            return msg
+        msg.linear.x = INIT_SPIRAL_LIN_VELOCITY + count*SPIRAL_LIN_INCREMENT
         msg.angular.z = SPIRAL_ANGULAR_VELOCITY
-        prev_spiral_linear_velocity = msg.linear.x
         return msg
     
-    def make_acc_line_twist(self):
+    def make_acc_line_twist(self, count):
+        """
+        To make the robot go in an accelerating line, there should be 0 angular velocity, 
+        and the linear velocity should be increasing, in this case we just do it at a constant rate 
+        """
         msg=Twist()
-        msg.linear.x = prev_line_linear_velocity + LINE_LIN_INCREMENT
+        if count >= TARGET_LINE_COUNT:
+            return msg
+        msg.linear.x = INIT_SPIRAL_LIN_VELOCITY + count*LINE_LIN_INCREMENT
         msg.angular.z = LINE_ANGULAR_VELOCITY
-        prev_line_linear_velocity = msg.linear.x
         return msg
 
 import argparse
 
 if __name__=="__main__":
-    
-
     argParser=argparse.ArgumentParser(description="input the motion type")
-
-
     argParser.add_argument("--motion", type=str, default="circle")
 
-
-
     rclpy.init()
-
     args = argParser.parse_args()
 
     if args.motion.lower() == "circle":
-
         ME=motion_executioner(motion_type=CIRCLE)
     elif args.motion.lower() == "line":
         ME=motion_executioner(motion_type=ACC_LINE)
-
     elif args.motion.lower() =="spiral":
         ME=motion_executioner(motion_type=SPIRAL)
-
     else:
-        print(f"we don't have {arg.motion.lower()} motion type")
-
-
+        print(f"we don't have {args.motion.lower()} motion type")
     
     try:
         rclpy.spin(ME)

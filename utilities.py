@@ -74,12 +74,12 @@ class FileReader:
         
         return headers, table
 
-
-# TODO Part 5: Implement the conversion from Quaternion to Euler Angles
 def euler_from_quaternion(quat):
     """
     Convert quaternion (w in last place) to euler roll, pitch, yaw.
     quat = [x, y, z, w]
+    
+    Source: https://en.wikipedia.org/wiki/Conversion_between_quaternions_and_Euler_angles
     """
     yaw = atan2(2 * (quat.w * quat.z + quat.x * quat.y), 1 - 2 * (quat.y**2 + quat.z**2))
     return yaw
