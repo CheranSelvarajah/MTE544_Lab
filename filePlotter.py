@@ -41,7 +41,7 @@ def plot_imu(ax, sensor_csvs, shape):
 
     ax.plot(time_list, acc_x, label="linear acceleration (x)")
     ax.plot(time_list, acc_y, label="linear acceleration (y)")
-    ax.plot(time_list, ang_z, label="angular acceleration (z)")
+    ax.plot(time_list, ang_z, label="angular velocity (z)")
     
     ax.set_title(f"IMU Measured Robot Linear Acceleration and Angular Velocity (motion: {shape})", fontproperties=FONT_TI)
     ax.set_xlabel("Time [s]", fontproperties=FONT_AX)
@@ -56,12 +56,16 @@ def plot_odom_xy(ax, sensor_csvs, shape):
     """
     file = sensor_csvs["odom"]
     _, values=FileReader(file).read_file()
-    
-    ax.plot([lin[0] for lin in values], [lin[1] for lin in values])
+    x_vals = [lin[0] for lin in values]
+    y_vals  = [lin[1] for lin in values]
+    ax.plot(x_vals, y_vals, label="robot position")
+    ax.scatter(x_vals[0], y_vals[0], label="start")
+    ax.scatter(x_vals[-1], y_vals[-1], marker="*", color="red", label="end")
     ax.set_title(f"Odometry Measured Robot Position Top View (motion: {shape})", fontproperties=FONT_TI)
     ax.set_xlabel("Robot x position [m]", fontproperties=FONT_AX)
     ax.set_ylabel("Robot y position [m]", fontproperties=FONT_AX)
-    ax.set_aspect('equal', adjustable='box') 
+    ax.set_aspect('equal', adjustable='box')
+    ax.legend(prop = FONT_AX, loc = "center left", bbox_to_anchor=(1, 0.5))
     ax.grid()
 
 def plot_imu_odom_data(sensor_csvs, shape):
