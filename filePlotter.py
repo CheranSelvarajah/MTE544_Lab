@@ -108,6 +108,7 @@ def plot_laser_data(sensor_csvs, shape):
     ax.set_xlabel("x [m]", fontproperties=FONT_AX)
     ax.set_ylabel("y [m]", fontproperties=FONT_AX)
     ax.legend()
+    ax.grid()
 
     plt.show()
     return fig
