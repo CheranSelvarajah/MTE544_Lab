@@ -94,7 +94,7 @@ class motion_executioner(Node):
                 
     def laser_callback(self, laser_msg: LaserScan):
         """
-        Gets the data from the `/odom` topic and sends it to the logger
+        Gets the data from the `/laser` topic and sends it to the logger
         """
         self.laser_initialized = True
         ranges = laser_msg.ranges
