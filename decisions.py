@@ -21,6 +21,14 @@ from controller import controller, trajectoryController
 # You may add any other imports you may need/want to use below
 # import ...
 
+K_P_LIN = 0.1 # 0.1
+K_D_LIN = 0.5 
+K_I_LIN = 0.01
+
+K_P_ANG = 0.4 # 0.5
+K_D_ANG = 0.75 
+K_I_ANG = 0.01
+
 ERROR_TOLERANCE = 0.1
 
 class decision_maker(Node):
@@ -38,12 +46,12 @@ class decision_maker(Node):
         # TODO Part 5: Tune your parameters here
     
         if motion_type == POINT_PLANNER:
-            self.controller=controller(klp=0.2, klv=0.5, kap=0.8, kav=0.6)
+            self.controller=controller(klp=K_P_LIN, klv=K_D_LIN, kap=K_P_ANG, kav=K_D_ANG)
             self.planner=planner(POINT_PLANNER)    
     
     
         elif motion_type==TRAJECTORY_PLANNER:
-            self.controller=trajectoryController(klp=0.2, klv=0.5, kap=0.8, kav=0.6)
+            self.controller=trajectoryController(klp=K_P_LIN, klv=K_D_LIN, kli = K_I_LIN, kap=K_P_ANG, kav=K_D_ANG, kai = K_I_ANG  )
             self.planner=planner(TRAJECTORY_PLANNER)
 
         else:
@@ -76,7 +84,9 @@ class decision_maker(Node):
         if type(self.goal) == list:
             reached_goal= calculate_linear_error(self.localizer.getPose(),self.goal[-1]) < ERROR_TOLERANCE
         else: 
-            reached_goal= calculate_linear_error(self.localizer.getPose(),self.goal) < ERROR_TOLERANCE
+            error = calculate_linear_error(self.localizer.getPose(),self.goal)
+            reached_goal = error < ERROR_TOLERANCE
+            print(error)
         
 
         if reached_goal:
@@ -111,7 +121,7 @@ def main(args=None):
 
     # TODO Part 4: instantiate the decision_maker with the proper parameters for moving the robot
     if args.motion.lower() == "point":
-        DM=decision_maker(Twist, "/cmd_vel", 10, [-1.0,-1.0], motion_type=POINT_PLANNER)
+        DM=decision_maker(Twist, "/cmd_vel", 10, [-1,-1], motion_type=POINT_PLANNER)
     elif args.motion.lower() == "trajectory":
         DM=decision_maker(Twist, "/cmd_vel", 10, 0, motion_type=TRAJECTORY_PLANNER)
     else:

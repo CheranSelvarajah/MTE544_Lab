@@ -14,7 +14,7 @@ class PID_ctrl:
         # Data for the controller
         self.history_length=history_length
         self.history=[]
-        self.type=type_
+        self.type=PID
 
         # Controller gains
         self.kp=kp    # proportional gain

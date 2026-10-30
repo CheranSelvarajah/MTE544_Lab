@@ -5,21 +5,22 @@ import math
 POINT_PLANNER=0
 TRAJECTORY_PLANNER=1
 
+STEP = 0.01
+
 PARABOLA = 0
-PARABOLA_START = 0.0
-PARABOLA_END = 1.5
+PARABOLA_START = int(0.0/STEP)
+PARABOLA_END = int(1.5/STEP)
 
 ELLIPSOID = 1
-ELLIPSOID_START = 0.0
-ELLIPSOID_END = 2.5
+ELLIPSOID_START = int(0.0/STEP)
+ELLIPSOID_END = int(2.5/STEP)
 
-STEP = 0.01
 
 class planner:
     def __init__(self, type_):
 
         self.type=type_
-        self.trajectory = 0
+        self.trajectory = 1
 
     
     def plan(self, goalPoint=[-1.0, -1.0]):
@@ -39,8 +40,8 @@ class planner:
     def trajectory_planner(self):
         trajectory_list = []
         if self.trajectory == PARABOLA:
-            for i in range(PARABOLA_START, PARABOLA_END, STEP):
-                x = i
+            for i in range(PARABOLA_START, PARABOLA_END, 1):
+                x = i*STEP
                 y = pow(x, 2)
                 point = [x, y]
                 trajectory_list.append(point)
@@ -48,8 +49,8 @@ class planner:
             return trajectory_list
             
         elif self.trajectory == ELLIPSOID:
-            for i in range(ELLIPSOID_START, ELLIPSOID_END, STEP):
-                x = i
+            for i in range(ELLIPSOID_START, ELLIPSOID_END, 1):
+                x = i*STEP
                 y = 2 / (1 + math.exp(-2*x)) - 1
                 point = [x, y]
                 trajectory_list.append(point)
