@@ -15,6 +15,41 @@ def setfont(SUPTITLE_SIZE = 26, TITLE_SIZE=20, AXES_SIZE=10):
 
 FONT_TI, FONT_AX = setfont()
 
+def plot_xdot_ydot_thetadot_vs_t(values, ax):
+    """
+    Plots:
+        (xdot vs t), (ydot vs t), (thetadot vs t)
+
+    Velocities are estimated using numerical differentiation.
+    """
+    x_robot = np.array([val[0] for val in values])
+    y_robot = np.array([val[1] for val in values])
+    theta_robot = np.array([val[2] for val in values])
+
+    # Convert timestamps to seconds
+    time_robot = np.array([
+        (val[3] - values[0][3]) / 1e9 for val in values
+    ])
+
+    # Numerically differentiate position and orientation
+    x_dot = np.gradient(x_robot, time_robot)
+    y_dot = np.gradient(y_robot, time_robot)
+    theta_dot = np.gradient(theta_robot, time_robot)
+
+    ax.plot(time_robot, x_dot, label=r"$\dot{x}$ vs t")
+    ax.plot(time_robot, y_dot, label=r"$\dot{y}$ vs t")
+    # ax.plot(time_robot, theta_dot, label=r"$\dot{\theta}$ vs t")
+
+    ax.set_xlim(left=0)
+    ax.set_title("Robot Velocity vs Time", fontproperties=FONT_TI)
+    ax.set_xlabel("Time [s]", fontproperties=FONT_AX)
+    ax.set_ylabel(
+        "Linear Velocity [m/s] and Angular Velocity [rad/s]",
+        fontproperties=FONT_AX
+    )
+    ax.grid()
+    ax.legend(prop=FONT_AX)
+
 def plot_e_vs_edot(values_linear, values_angular, ax):
     """
     Plots:
@@ -169,7 +204,8 @@ def plot_trajectory_data(trajectory, dir):
     plt.show()
 
     return fig
-    
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description="Process some files."
