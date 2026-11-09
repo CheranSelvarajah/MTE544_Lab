@@ -10,17 +10,17 @@ class kalman_filter:
     # TODO Part 3: Initialize the covariances and the states    
     def __init__(self, P,Q,R, x, dt):
         
-        self.P=...
-        self.Q=...
-        self.R=...
-        self.x=...
-        self.dt = ...
+        self.P=P
+        self.Q=Q
+        self.R=R
+        self.x=x
+        self.dt = dt
         
     # TODO Part 3: Replace the matrices with Jacobians where needed        
     def predict(self):
 
-        self.A = ...
-        self.C = ...
+        self.A = self.jacobian_A()
+        self.C = self.jacobian_H()
         
         self.motion_model()
         
@@ -29,11 +29,11 @@ class kalman_filter:
     # TODO Part 3: Calculate the Kalman gain and correct your estimates
     def update(self, z):
         
-        kalman_gain= ...
+        kalman_gain= np.dot(np.dot(self.P, self.C.T), np.linalg.inv(np.dot(self.C, np.dot(self.P, self.C.T)) + self.R))
         
-        self.x= ...
+        self.x= self.x + np.dot(kalman_gain, z - self.measurement_model())
         
-        self.P= ...
+        self.P= np.dot(np.eye(self.P.shape[0]) - np.dot(kalman_gain, self.C), self.P)
         
     
     # TODO Part 3: Implement here the measurement model
