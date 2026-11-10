@@ -33,7 +33,7 @@ class decision_maker(Node):
 
 
         # TODO Part 3: use the Kalman Filter
-        self.localizer=localization(kalmanFilter, 0.01, "robotPose.csv", ["imu_ax", "imu_ay", "kf_ax", "kf_ay","kf_vx","kf_w","kf_x", "kf_y","stamp"])
+        self.localizer=localization(...)
         
         if motion_type==POINT_PLANNER:
             self.controller=controller(klp=0.2, klv=0.5, kap=0.8, kav=0.6)      
