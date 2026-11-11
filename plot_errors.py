@@ -17,7 +17,7 @@ def plot_errors(filename):
 
     
     
-    fig, axes = plt.subplots(2,1, figsize=(14,6))
+    fig, axes = plt.subplots(3,1, figsize=(14,6))
 
 
     axes[0].plot([lin[len(headers) - 3] for lin in values], [lin[len(headers) - 2] for lin in values])
@@ -25,12 +25,19 @@ def plot_errors(filename):
     axes[0].grid()
 
     
-    axes[1].set_title("each individual state")
-    for i in range(0, len(headers) - 1):
-        axes[1].plot(time_list, [lin[i] for lin in values], label= headers[i])
+    axes[1].set_title("ax state")
+    axes[1].plot(time_list, [lin[0] for lin in values], label= headers[0])
+    axes[1].plot(time_list, [lin[2] for lin in values], label= headers[2])
+
+    axes[2].set_title("ay state")
+    axes[2].plot(time_list, [lin[1] for lin in values], label= headers[1])
+    axes[2].plot(time_list, [lin[3] for lin in values], label= headers[3])
 
     axes[1].legend()
     axes[1].grid()
+
+    axes[2].legend()
+    axes[2].grid()
 
     plt.show()
     
