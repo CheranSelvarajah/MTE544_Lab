@@ -80,7 +80,7 @@ class kalman_filter:
             [0, 0,  0,  0, 1,   0],   # v
             [0, 0,  0,  1, 0,   0],   # w
             [0, 0,  0,  0, 0,   1],   # ax = vdot 
-            [0, 0,  0,  1, 1,   0],   # ay = v * w
+            [0, 0,  0,  v, w,   0],   # ay = v * w
         ])
         
     # DONE: Part 3: return the states here    
