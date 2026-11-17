@@ -45,20 +45,17 @@ class localization(Node):
         
     def initKalmanfilter(self, dt):
         
-        # TODO Part 3: Set up the quantities for the EKF (hint: you will need the functions for the states and measurements)
+        # DONE Part 3: Set up the quantities for the EKF (hint: you will need the functions for the states and measurements)
         
         x= np.zeros(6)
-
         #might have to tune these later
         Q= np.eye(6)
-
         R= np.eye(4)
-        
         P= np.eye(6)
         
         self.kf=kalman_filter(P,Q,R, x, dt)
         
-        # TODO Part 3: Use the odometry and IMU data for the EKF
+        # DONE Part 3: Use the odometry and IMU data for the EKF
         self.odom_sub=message_filters.Subscriber(self, odom,'/odom', odom_qos)
         self.imu_sub=message_filters.Subscriber(self, Imu,'/imu' )
 
@@ -68,7 +65,7 @@ class localization(Node):
     
     def fusion_callback(self, odom_msg: odom, imu_msg: Imu):
         
-        # TODO Part 3: Use the EKF to perform state estimation
+        # DONE Part 3: Use the EKF to perform state estimation
         # Take the measurements
         # your measurements are the linear velocity and angular velocity from odom msg
         # and linear acceleration in x and y from the imu msg
@@ -96,7 +93,7 @@ class localization(Node):
             odom_msg.header.stamp
             ])
 
-        # TODO Part 4: log your data
+        # DONE Part 4: log your data
         self.loc_logger.log_values([
             z[2],
             z[3],                                   
