@@ -1,6 +1,6 @@
 import numpy as np
 
-# TODO Part 3: Comment the code explaining each part
+# DONE Part 3: Comment the code explaining each part
 class kalman_filter:
     
     # DONE: Part 3: Initialize the covariances and the states    
