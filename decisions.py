@@ -46,7 +46,7 @@ class decision_maker(Node):
         self.reachThreshold=0.1
 
         # TODO PART 5 your localization type
-        self.localizer=localization("kalman")
+        self.localizer=localization(kalmanFilter)
 
 
         
@@ -76,10 +76,10 @@ class decision_maker(Node):
 
     # This is for the rviz2 interface
     def designPathFor(self, msg: PoseStamped):
-        
+        print(f"GOAL CALLBACK TRIGGERED ({msg.pose.position.x, msg.pose.position.y})")
         spin_once(self.localizer)
         
-        if self.localizer.getPose() is  None:
+        if self.localizer.getPose() is None:
             print("waiting for odom msgs ....")
             return
         
